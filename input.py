@@ -1,22 +1,9 @@
-from pymatgen.core import Structure
 from pymatgen.core.composition import Composition
-from pymatgen.io.vasp import Poscar, Kpoints, Outcar
-from dataclasses import dataclass
-import os
-import yaml
+from pymatgen.io.vasp import Poscar, Kpoints, Outcar, Vasprun
 from pymatgen.core import Structure, Molecule
-from pymatgen.io.vasp import Poscar
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
-from dataclasses import dataclass
 import os
 import yaml
-
-
-@dataclass
-class User:
-    potential_directory: str
-    pbs_script_template: str
-    yaml_scripts_directory: str
 
 
 class StructureData:
