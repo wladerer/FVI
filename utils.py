@@ -2,6 +2,7 @@ from scipy import cdist
 from pymatgen.core.composition import Composition
 from pymatgen.core import Structure
 from dataclasses import dataclass
+import numpy as np
 import os
 
 
@@ -10,6 +11,7 @@ class User:
     potential_directory: str
     pbs_script_template: str
     yaml_scripts_directory: str
+    MP_API_KEY: str = "UKRQAw2HZOkwJBpGh96V8zKFXGYLSIVH"
 
 
 def read_xyz(xyzfile: str):
