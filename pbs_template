@@ -1,0 +1,16 @@
+#!/bin/bash
+#PBS -q <queue>
+#PBS -l select=<nodes>:ncpus=<cores>:mpiprocs=<npp>
+#PBS -l walltime=<walltime>
+#PBS -N <jobname>
+#PBS -j oe
+#PBS -l job_type=<job_type>
+#PBS -M <email>
+#PBS -m be
+#PBS -A <project>
+
+export VASP_NPROCS=<nprocs>
+
+cd <workdir>
+
+vasp
