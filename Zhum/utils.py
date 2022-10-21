@@ -1,4 +1,4 @@
-from scipy import cdist
+from scipy.spatial.distance import cdist
 from pymatgen.core.composition import Composition
 from pymatgen.core import Structure
 from dataclasses import dataclass
@@ -6,12 +6,14 @@ import numpy as np
 import os
 
 
-@dataclass
+
 class User:
-    potential_directory: str
-    pbs_script_template: str
-    yaml_scripts_directory: str
-    MP_API_KEY: str = "UKRQAw2HZOkwJBpGh96V8zKFXGYLSIVH"
+
+    def __init__(self):
+        pbs_script_template: str
+        yaml_scripts_directory: str
+        potential_directory: str
+        MP_API_KEY: str
 
 
 def read_xyz(xyzfile: str):

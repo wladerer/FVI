@@ -2,27 +2,27 @@ from pymatgen.core.composition import Composition
 from pymatgen.io.vasp import Poscar, Kpoints
 from pymatgen.core import Structure, Molecule
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
-from utils import User, formula_from_file, MP_API_KEY
-from mp_api.matproj import MPRester
+from scipy.spatial.distance import cdist
+from Zhum.utils import User, formula_from_file
+from mp_api.client import MPRester
 import os
 import yaml
 
 
 class vaspInputGenerator:
 
-    def __init__(self, user: User, directory: str="."):
+    def __init__(self, user: User, directory: str=".", mpcode=None):
+
+        assert Exception("User object not found") if isinstance(user, User) else None
         
-        #Check if directory and POSCAR exist
-        assert Exception("Directory not found") if not os.path.exists(directory) else None
-        assert Exception("POSCAR not found") if not os.path.exists(os.path.join(directory, "POSCAR")) else None
-        
+        self.mpcode = mpcode
         self.user = user
         self.pbs_script_template = user.pbs_script_template
         self.yaml_scripts_directory = user.yaml_scripts_directory
         self.directory = directory
-        self.structure = self.get_structure(directory)
+        self.structure = self.get_structure()
         self.reduced_formula, _ = Composition(self.structure.formula).get_reduced_formula_and_factor()
-
+        
 
     def makePOTCAR(self, user: User) -> None:
         '''
@@ -62,7 +62,7 @@ class vaspInputGenerator:
         kpts = Kpoints.automatic_density_by_lengths(self.structure, density, force_gamma=True)
         kpoints = kpts.as_dict()['kpoints'][0]
         if save:
-            kpts.write_file(f"{self.formula}_{self.plane}.kpoints")
+            kpts.write_file(f"{self.reduced_formula}.kpoints")
 
         return f"{int(kpoints[0])}x{int(kpoints[1])}x{int(kpoints[2])}"
 
@@ -76,22 +76,28 @@ class vaspInputGenerator:
         with open(os.path.join(self.yaml_scripts_directory, "pbs_script.yaml"), "r") as pbs_script:
             pbs_script = yaml.load(pbs_script, Loader=yaml.FullLoader)
 
-        # #write pbs_script
-        # with open(f"{self.formula}_{self.plane}.pbs", "w") as pbs_file:
 
-    def get_structure(self, directory: str=".", materials_code=None) -> Structure:
+    def get_structure(self, directory: str=".") -> Structure:
         '''
         Checks whether POSCAR or CONTCAR exists, and returns structure object
         '''
         if os.path.exists(os.path.join(directory, "POSCAR")):
+            print("POSCAR found")
             return Poscar.from_file(os.path.join(directory, "POSCAR")).structure
         elif os.path.exists(os.path.join(directory, "CONTCAR")):
+            print("CONTCAR found")
             return Poscar.from_file(os.path.join(directory, "CONTCAR")).structure
-        elif materials_code:
-            return MPRester().get_structure_by_material_id(materials_code)
-        else:
-            raise Exception("No structure found")
+        elif self.mpcode != None:
+            print("Getting structure from Materials Project")
+            return self.get_structure_from_materials_project()
 
+    def get_structure_from_materials_project(self) -> Structure:
+        '''
+        Returns structure object from Materials Project
+        '''
+        with MPRester("UKRQAw2HZOkwJBpGh96V8zKFXGYLSIVH") as mpr:
+            structure = mpr.get_structure_by_material_id(self.mpcode)   
+        return structure
 
     def addAdsorbate(self, adsorbate: Molecule, min_z: float=5.0, index=None, save: bool = False) -> list[Structure]: 
         '''
@@ -116,7 +122,7 @@ class vaspInputGenerator:
         # Save all frozen slabs to a POSCAR file with a unique name
         if save:
             for i, frozen_slab in enumerate(ads_structs):
-                Poscar(frozen_slab).write_file(f"{self.formula}{index}_POSCAR_{i}.vasp")
+                Poscar(frozen_slab).write_file(f"{self.reduced_formula}{index}_POSCAR_{i}.vasp")
 
         return ads_structs
 
