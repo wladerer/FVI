@@ -7,22 +7,16 @@ p2wslab = vaspInputGenerator(user)
 #add adsorbate to POSCAR
 
 oh = Molecule(["O", "H"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]], charge=-1)
-
 #make a simple co2 molecule from pymatgen
 co2 = Molecule(["C", "O", "O"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0]])
-
 #make a simple h2 molecule from pymatgen
 h2 = Molecule(["H", "H"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0]])
-
 #make a simple ethene molecule from pymatgen
 ethene = Molecule(["C", "C", "H", "H", "H", "H"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [0.0, 1.0, 1.0], [1.0, 0.0, 0.0], [1.0, 0.0, 1.0]])
-
 #make a simple ethane molecule from pymatgen
 ethane = Molecule(["C", "C", "H", "H", "H", "H", "H", "H"], [[0.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, 1.0, 0.0], [0.0, 1.0, 1.0], [1.0, 0.0, 0.0], [1.0, 0.0, 1.0], [1.0, 1.0, 0.0], [1.0, 1.0, 1.0]])
-
 #make a simple hydrogen atom from pymatgen
 hydrogen = Molecule(["H"], [[0.0, 0.0, 0.0]])
-
 #make a simple carbon atom from pymatgen
 carbon = Molecule(["C"], [[0.0, 0.0, 0.0]])
 
