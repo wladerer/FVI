@@ -1,27 +1,51 @@
 from scipy.spatial.distance import cdist
 from pymatgen.core.composition import Composition
 from pymatgen.core import Structure, Molecule
-from dataclasses import dataclass
+from adsorbates import molecules
+import yaml
 import numpy as np
 import os
 
 
+class Job:
 
-class User:
+    def __init__(self, file) -> None:
+        self.file = file
+        self.yaml = self.load_yaml(file)
+        self.mpcode = self.yaml['mpcode']
+        self.directory = self.yaml['directory']
+        self.potential_directory = self.yaml['potential_directory']
+        self.adsorbates: list[Molecule] = self.get_adsorbates()
+        self.walltime = self.yaml['walltime']
+        self.user = self.yaml['user']
+        self.min_z = self.yaml['min_z']
+        self.index = self.yaml['index']
 
-    def __init__(self):
-<<<<<<<< HEAD:Zhum/utils.py
-        pbs_script_template: str
-        yaml_scripts_directory: str
-        potential_directory: str
-        MP_API_KEY: str
-========
-        pbs_script_template: str="."
-        yaml_scripts_directory: str="."
-        potential_directory: str="."
-        MP_API_KEY: str="aOGNgkSFnNArzpnQT5ff8RIErnX1TNIz"
->>>>>>>> 00e00e9 (its working!):core/utils.py
 
+    def load_yaml(self, file: str) -> None:
+        #load yaml file
+        with open(file, 'r') as f:
+            self.yaml = yaml.load(f, Loader=yaml.FullLoader)
+
+        return self.yaml
+
+    def get_adsorbates(self):
+        #get adsorbates from yaml file
+        
+        if self.yaml['adsorbates'] == "all":
+            #set self.adsorbates to all molecules in molecules dictionary as a list
+            self.adsorbates = list(molecules.values())
+            return self.adsorbates
+
+        else:
+            adsorbate_list = []
+            for adsorbate in self.yaml['adsorbates']:
+                adsorbate_list.append(adsorbate)
+
+            #create a list of adsorbates from molecules dictionary according to the adsorbates list
+            self.adsorbates = [molecules[adsorbate] for adsorbate in adsorbate_list]
+
+            return self.adsorbates
 
 def read_xyz(xyzfile: str):
     """

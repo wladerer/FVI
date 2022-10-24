@@ -3,11 +3,7 @@ from pymatgen.io.vasp import Poscar, Kpoints
 from pymatgen.core import Structure, Molecule
 from pymatgen.analysis.adsorption import AdsorbateSiteFinder
 from scipy.spatial.distance import cdist
-<<<<<<<< HEAD:Zhum/input.py
-from Zhum.utils import User, formula_from_file
-========
-from utils import User, formula_from_file, molecule_as_string
->>>>>>>> 00e00e9 (its working!):core/input.py
+from utils import formula_from_file, molecule_as_string
 from mp_api.client import MPRester
 import os
 import yaml
@@ -15,30 +11,18 @@ import yaml
 
 class vaspInputGenerator:
 
-<<<<<<<< HEAD:Zhum/input.py
-    def __init__(self, user: User, directory: str=".", mpcode=None):
-
-        assert Exception("User object not found") if isinstance(user, User) else None
+    def __init__(self, index, directory: str=".", mpcode=None):
         
         self.mpcode = mpcode
-        self.user = user
-        self.pbs_script_template = user.pbs_script_template
-        self.yaml_scripts_directory = user.yaml_scripts_directory
-========
-    def __init__(self, directory: str=".", mpcode=None):
-        
-        self.mpcode = mpcode
->>>>>>>> 00e00e9 (its working!):core/input.py
         self.directory = directory
         self.structure = self.get_structure()
         self.reduced_formula, _ = Composition(self.structure.formula).get_reduced_formula_and_factor()
-        
+        self.index = index
+        self.save_dir = f"{self.directory}/{self.reduced_formula}/{self.index}"
 
-<<<<<<<< HEAD:Zhum/input.py
-    def makePOTCAR(self, user: User) -> None:
-========
+
     def makePOTCAR(self, potdir: str) -> None:
->>>>>>>> 00e00e9 (its working!):core/input.py
+
         '''
         Creates POTCAR file from POTENTIAL_DIRECTORY
         '''
@@ -76,7 +60,8 @@ class vaspInputGenerator:
         kpts = Kpoints.automatic_density_by_lengths(self.structure, density, force_gamma=True)
         kpoints = kpts.as_dict()['kpoints'][0]
         if save:
-            kpts.write_file(f"{self.reduced_formula}.kpoints")
+            os.makedirs(f"{self.save_dir}", exist_ok=True)
+            kpts.write_file(f"{self.save_dir}/{self.reduced_formula}.kpoints")
 
         return f"{int(kpoints[0])}x{int(kpoints[1])}x{int(kpoints[2])}"
 
@@ -137,16 +122,12 @@ class vaspInputGenerator:
         # Save all frozen slabs to a POSCAR file with a unique name
         if save:
             for i, frozen_slab in enumerate(ads_structs):
-<<<<<<<< HEAD:Zhum/input.py
-                Poscar(frozen_slab).write_file(f"{self.reduced_formula}{index}_POSCAR_{i}.vasp")
 
-========
                 #Make directory for slab, plane, adsorbate pair
-                dir = f"/home/wladerer/github/Zhum/poscars/{self.reduced_formula}/{index}/{molecule_as_string(adsorbate)}/"
+                dir = f"{self.save_dir}/{molecule_as_string(adsorbate)}/"
                 os.makedirs(f"{dir}", exist_ok=True)
-                Poscar(frozen_slab).write_file(f"{dir}/{self.reduced_formula}_{molecule_as_string(adsorbate)}_{index}_POSCAR_{i}.vasp")
-        
->>>>>>>> 00e00e9 (its working!):core/input.py
+                Poscar(frozen_slab).write_file(f"{dir}/{molecule_as_string(adsorbate)}_POSCAR_{i}.vasp")
+
         return ads_structs
 
 
